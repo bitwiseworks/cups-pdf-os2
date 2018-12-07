@@ -1,0 +1,11 @@
+===== Virtual Printer =====
+
+This cups-pdf RPM is designed to create a Cups-PDF virtual printer
+during the installation, but only if cups is running.
+
+You can create the virtual pinter using :
+    /@unixroot/usr/sbin/lpadmin -p Cups-PDF -v cups-pdf:/ -m CUPS-PDF.ppd -E
+
+You can remove the virtual printer using
+    /@unixroot/usr/sbin/lpadmin -x Cups-PDF
+
