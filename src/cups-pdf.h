@@ -18,8 +18,11 @@
 /  they are reasonable for most systems.			     */
 
 /* location of the configuration file */
+#ifdef __OS2__
+#define CP_CONFIG_PATH "/@unixroot/etc/cups"
+#else
 #define CP_CONFIG_PATH "/etc/cups"
-
+#endif
 
 /* --- DO NOT EDIT BELOW THIS LINE --- */
 
@@ -55,17 +58,41 @@ struct {
     mode_t modval;
   } value;
 } configData[] = {
+#ifdef __OS2__
+  { "AnonDirName", SEC_CONF|SEC_PPD, { "/@unixroot/var/spool/cups-pdf/ANONYMOUS" } },
+#else
   { "AnonDirName", SEC_CONF|SEC_PPD, { "/var/spool/cups-pdf/ANONYMOUS" } },
+#endif
   { "AnonUser", SEC_CONF|SEC_PPD, { "nobody" } },
+#ifdef __OS2__
+  { "GhostScript", SEC_CONF|SEC_PPD, { "/@unixroot/usr/bin/gs" } },
+#else
   { "GhostScript", SEC_CONF|SEC_PPD, { "/usr/bin/gs" } },
+#endif
   { "GSCall", SEC_CONF|SEC_PPD, { "%s -q -dCompatibilityLevel=%s -dNOPAUSE -dBATCH -dSAFER -sDEVICE=pdfwrite -sOutputFile=\"%s\" -dAutoRotatePages=/PageByPage -dAutoFilterColorImages=false -dColorImageFilter=/FlateEncode -dPDFSETTINGS=/prepress -c .setpdfwrite -f %s" } },
   { "Grp", SEC_CONF|SEC_PPD, { "lp" } },
+#ifdef __OS2__
+  { "GSTmp", SEC_CONF|SEC_PPD, { "TMPDIR=/@unixroot/var/tmp" } },
+#else
   { "GSTmp", SEC_CONF|SEC_PPD, { "TMPDIR=/var/tmp" } },
+#endif
+#ifdef __OS2__
+  { "Log", SEC_CONF|SEC_PPD, { "/@unixroot/var/log/cups" } },
+#else
   { "Log", SEC_CONF|SEC_PPD, { "/var/log/cups" } },
+#endif
   { "PDFVer", SEC_CONF|SEC_PPD|SEC_LPOPT, { "1.4" } },
   { "PostProcessing", SEC_CONF|SEC_PPD|SEC_LPOPT, { "" } },
+#ifdef __OS2__
+  { "Out", SEC_CONF|SEC_PPD, { "/@unixroot/var/spool/cups-pdf/${USER}" } },
+#else
   { "Out", SEC_CONF|SEC_PPD, { "/var/spool/cups-pdf/${USER}" } },
+#endif
+#ifdef __OS2__
+  { "Spool", SEC_CONF|SEC_PPD, { "/@unixroot/var/spool/cups-pdf/SPOOL" } },
+#else
   { "Spool", SEC_CONF|SEC_PPD, { "/var/spool/cups-pdf/SPOOL" } },
+#endif
   { "UserPrefix", SEC_CONF|SEC_PPD, { "" } },
   { "RemovePrefix", SEC_CONF|SEC_PPD, { "" } },
   { "OutExtension", SEC_CONF|SEC_PPD|SEC_LPOPT, { "pdf" } },

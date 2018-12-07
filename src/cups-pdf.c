@@ -257,7 +257,11 @@ static void read_config_file(char *filename) {
   while (fgets(buffer, BUFSIZE, fp) != NULL) {
     key[0]='\0';
     value[0]='\0';
+#ifdef __OS2__
+    if (sscanf(buffer,"%s %[^\r\n]",key,value)) {
+#else
     if (sscanf(buffer,"%s %[^\n]",key,value)) {
+#endif
       if (!strlen(key) || !strncmp(key,"#",1))
         continue;
       _assign_value(SEC_CONF, key, value);
@@ -721,7 +725,11 @@ static int preparespoolfile(FILE *fpsrc, char *spoolfile, char *title, char *cmd
     return 1;
   }
   log_event(CPDEBUG, "source stream ready");
+#ifdef __OS2__
+  fpdest=fopen(spoolfile, "wb");
+#else
   fpdest=fopen(spoolfile, "w");
+#endif
   if (fpdest == NULL) {
     log_event(CPERROR, "failed to open spoolfile: %s", spoolfile);
     (void) fclose(fpsrc);
@@ -976,7 +984,11 @@ int main(int argc, char *argv[]) {
     log_event(CPDEBUG, "input data read from stdin");
   }
   else {
+#ifdef __OS2__
+    if (preparespoolfile(fopen(argv[6], "rb"), spoolfile, title, argv[3], atoi(argv[1]), passwd)) {
+#else
     if (preparespoolfile(fopen(argv[6], "r"), spoolfile, title, argv[3], atoi(argv[1]), passwd)) {
+#endif
       free(groups);
       free(dirname);
       free(spoolfile);
