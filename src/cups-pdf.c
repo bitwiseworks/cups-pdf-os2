@@ -374,6 +374,7 @@ static int init(char *argv[]) {
   (void) umask(0077);
 
   group=getgrnam(Conf_Grp);
+  if (group)
     grpstat=setgid(group->gr_gid);
 
   if (strlen(Conf_Log)) {
@@ -651,6 +652,13 @@ static int preparetitle(char *title) {
       title[strlen(title)-1]='\0';
       memmove(title, title+1, strlen(title));
     }
+    cut=strchr(title, '\r');
+    if (!cut)
+      cut=strchr(title, '\n');
+    if (cut) {
+      *cut = 0;
+      log_event(CPDEBUG, "removing newlines from title", title);
+    }
   }
   cut=strrchr(title, '/');
   if (cut != NULL) {
@@ -740,11 +748,13 @@ static int preparespoolfile(FILE *fpsrc, char *spoolfile, char *title, char *cmd
   (void) fputs(buffer, fpdest);
   while (fgets2(buffer, BUFSIZE, fpsrc) != NULL) {
     (void) fputs(buffer, fpdest);
-    if (!is_title && !rec_depth)
+    if (!is_title && !rec_depth) {
+      memset(title, 0, BUFSIZE);
       if (sscanf(buffer, "%%%%Title: %"TBUFSIZE"c", title)==1) {
         log_event(CPDEBUG, "found title in ps code: %s", title);
         is_title=1;
       }
+    }
     if (!strncmp(buffer, "%!", 2)) {
       log_event(CPDEBUG, "found embedded (e)ps code: %s", buffer);
       rec_depth++;
@@ -821,6 +831,7 @@ int main(int argc, char *argv[]) {
   gid_t *groups;
   int ngroups;
   pid_t pid;
+  struct stat statout;
 
   if (setuid(0)) {
     (void) fputs("CUPS-PDF cannot be called without root privileges!\n", stderr);
@@ -1050,7 +1061,11 @@ int main(int argc, char *argv[]) {
      
     (void) umask(0077);
     size=system(gscall);
-    log_event(CPDEBUG, "ghostscript has finished: %d", size);
+    if (size)
+      log_event(CPERROR, "ghostscript reported an error", size);
+    else
+      log_event(CPDEBUG, "ghostscript succeeded", NULL);
+
     if (chmod(outfile, mode))
       log_event(CPERROR, "failed to set file mode for PDF file: %s (non fatal)", outfile);
     else
@@ -1083,6 +1098,11 @@ int main(int argc, char *argv[]) {
   else 
     log_event(CPDEBUG, "spoolfile unlinked: %s", spoolfile);
 
+  if (stat(outfile, &statout) || statout.st_size==0)
+   log_event(CPSTATUS, "PDF creation failed", NULL);
+  else
+   log_event(CPSTATUS, "PDF creation successfully finished", outfile);
+
   free(groups);
   free(dirname);
   free(spoolfile);
@@ -1090,8 +1110,6 @@ int main(int argc, char *argv[]) {
   free(gscall);
   
   log_event(CPDEBUG, "all memory has been freed");
-
-  log_event(CPSTATUS, "PDF creation successfully finished for %s", passwd->pw_name);
 
   if (logfp!=NULL)
     (void) fclose(logfp);
