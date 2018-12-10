@@ -380,6 +380,9 @@ static int init(char *argv[]) {
   group=getgrnam(Conf_Grp);
   if (group)
     grpstat=setgid(group->gr_gid);
+#ifdef __OS2__ // @todo bww why is this not working
+  grpstat = 0;
+#endif
 
   if (strlen(Conf_Log)) {
     if (stat(Conf_Log, &fstatus) || !S_ISDIR(fstatus.st_mode)) {
@@ -421,6 +424,7 @@ static int init(char *argv[]) {
     log_event(CPSTATUS, "spool directory created: %s", Conf_Spool);
   }
 
+  log_event(CPERROR, "group id %i, user id %i", getgid(), getuid());
   (void) umask(0077);
   return 0;
 }
@@ -841,10 +845,14 @@ int main(int argc, char *argv[]) {
   pid_t pid;
   struct stat statout;
 
+#ifndef __OS2__ // we are already root
   if (setuid(0)) {
     (void) fputs("CUPS-PDF cannot be called without root privileges!\n", stderr);
     return 0;
   }
+#else
+  setenv("SHELL", "/@unixroot/usr/bin/sh", 0);
+#endif
 
   if (argc==1) {
     announce_printers();
