@@ -9,3 +9,12 @@ You can create the virtual pinter using :
 You can remove the virtual printer using
     /@unixroot/usr/sbin/lpadmin -x Cups-PDF
 
+To get a PM printer do the following:
+    1.) open Install Printer
+    2.) Install a local or network printer (CUPS-based)
+    3.) Use Generic Printer and there select CUPS-PDF Printer
+    4.) Network or other printer (manual configuration)
+    5.) Select available CUPS Printer in the network protocol and
+        localhost in name of the CUPS server, then select CUPS-PDF in the
+        name of the CUPS printer
+    6.) now hit enter and the printer should be created
