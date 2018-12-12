@@ -397,6 +397,7 @@ static int init(char *argv[]) {
 
   dump_configuration();
 
+#ifndef __OS2__
   if (!group) {
     log_event(CPERROR, "Grp not found: %s", Conf_Grp);
     return 1;
@@ -407,6 +408,7 @@ static int init(char *argv[]) {
   }
   else 
     log_event(CPDEBUG, "set new gid: %s", Conf_Grp);
+#endif
 
   (void) umask(0022);
 
@@ -1066,6 +1068,7 @@ int main(int argc, char *argv[]) {
   if (!pid) {
     log_event(CPDEBUG, "entering child process");
 
+#ifndef __OS2__
     if (setgid(passwd->pw_gid))
       log_event(CPERROR, "failed to set GID for current user");
     else
@@ -1078,6 +1081,7 @@ int main(int argc, char *argv[]) {
       log_event(CPERROR, "failed to set UID for current user: %s", passwd->pw_name);
     else
       log_event(CPDEBUG, "UID set for current user: %s", passwd->pw_name);
+#endif
      
     (void) umask(0077);
     size=system(gscall);
