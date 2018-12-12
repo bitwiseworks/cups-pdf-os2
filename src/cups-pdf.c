@@ -769,6 +769,12 @@ static int preparespoolfile(FILE *fpsrc, char *spoolfile, char *title, char *cmd
         is_title=1;
       }
     }
+#ifdef __OS2__
+    // reset title scan again if !PS-Adobe is found
+    if (!strncmp(buffer, "%!PS-Adobe\r", 11)) {
+      is_title=0;
+    } else
+#endif
     if (!strncmp(buffer, "%!", 2)) {
       log_event(CPDEBUG, "found embedded (e)ps code: %s", buffer);
       rec_depth++;
