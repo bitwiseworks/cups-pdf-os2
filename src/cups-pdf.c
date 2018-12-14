@@ -3,8 +3,8 @@
    volker@cups-pdf.de
    http://www.cups-pdf.de
 
-   This code may be freely distributed as long as this header 
-   is preserved. 
+   This code may be freely distributed as long as this header
+   is preserved.
 
    This code is distributed under the GPL.
    (http://www.gnu.org/copyleft/gpl.html)
@@ -28,14 +28,14 @@
    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
    ---------------------------------------------------------------------------
-  
+
    If you want to redistribute modified sources/binaries this header
-   has to be preserved and all modifications should be clearly 
+   has to be preserved and all modifications should be clearly
    indicated.
-   In case you want to include this code into your own programs 
+   In case you want to include this code into your own programs
    I would appreciate your feedback via email.
 
-  
+
    HISTORY: see ChangeLog in the parent directory of the source archive
 */
 
@@ -73,12 +73,12 @@ static void log_event(short type, const char *message, ...) {
   cp_string logbuffer;
   va_list ap;
 
-  if ((logfp != NULL) && (type & Conf_LogType)) { 
+  if ((logfp != NULL) && (type & Conf_LogType)) {
     (void) time(&secs);
     timestring=ctime(&secs);
     timestring[strlen(timestring)-1]='\0';
 
-    if (type == CPERROR) 
+    if (type == CPERROR)
       snprintf(ctype, 8, "ERROR");
     else if (type == CPSTATUS)
       snprintf(ctype, 8, "STATUS");
@@ -316,7 +316,7 @@ static void read_config_options(const char *lpoptions) {
         option->value[j] = ' ';
       }
     }
-    _assign_value(SEC_LPOPT, option->name, option->value); 
+    _assign_value(SEC_LPOPT, option->name, option->value);
   }
   return;
 }
@@ -365,7 +365,7 @@ static int init(char *argv[]) {
   if ((uri != NULL) && (strncmp(uri, "cups-pdf:/", 10) == 0) && strlen(uri) > 10) {
     uri = uri + 10;
     sprintf(filename, "%s/cups-pdf-%s.conf", CP_CONFIG_PATH, uri);
-  } 
+  }
   else {
     sprintf(filename, "%s/cups-pdf.conf", CP_CONFIG_PATH);
   }
@@ -386,7 +386,7 @@ static int init(char *argv[]) {
 
   if (strlen(Conf_Log)) {
     if (stat(Conf_Log, &fstatus) || !S_ISDIR(fstatus.st_mode)) {
-      if (create_dir(Conf_Log, 1)) 
+      if (create_dir(Conf_Log, 1))
         return 1;
       if (chmod(Conf_Log, 0700))
         return 1;
@@ -401,12 +401,12 @@ static int init(char *argv[]) {
   if (!group) {
     log_event(CPERROR, "Grp not found: %s", Conf_Grp);
     return 1;
-  } 
+  }
   else if (grpstat) {
     log_event(CPERROR, "failed to set new gid: %s", Conf_Grp);
     return 1;
   }
-  else 
+  else
     log_event(CPDEBUG, "set new gid: %s", Conf_Grp);
 #endif
 
@@ -421,7 +421,7 @@ static int init(char *argv[]) {
       log_event(CPERROR, "failed to set mode on spool directory: %s", Conf_Spool);
       return 1;
     }
-    if (chown(Conf_Spool, -1, group->gr_gid)) 
+    if (chown(Conf_Spool, -1, group->gr_gid))
       log_event(CPERROR, "failed to set group id %s on spool directory: %s (non fatal)", Conf_Grp, Conf_Spool);
     log_event(CPSTATUS, "spool directory created: %s", Conf_Spool);
   }
@@ -445,7 +445,7 @@ static void announce_printers() {
       if ((strncmp(config_ent->d_name, "cups-pdf-", 9) == 0) &&
           (len > 14 && strcmp(config_ent->d_name + len - 5, ".conf") == 0)) {
         strncpy(setup, config_ent->d_name + 9, BUFSIZE>len-14 ? len-14 : BUFSIZE);
-        setup[BUFSIZE>len-14 ? len-14 : BUFSIZE - 1] = '\0'; 
+        setup[BUFSIZE>len-14 ? len-14 : BUFSIZE - 1] = '\0';
         printf("file cups-pdf:/%s \"Virtual %s Printer\" \"CUPS-PDF\" \"MFG:Generic;MDL:CUPS-PDF Printer;DES:Generic CUPS-PDF Printer;CLS:PRINTER;CMD:POSTSCRIPT;\"\n", setup, setup);
       }
     }
@@ -532,18 +532,18 @@ static int prepareuser(struct passwd *passwd, char *dirname) {
 /* no validation is done here, please use is_ps_hex_string for that */
 static void decode_ps_hex_string(char *string) {
   char *src_ptr, *dst_ptr;
-  int is_lower_digit; 					/* 0 - higher digit, 1 - lower digit */
+  int is_lower_digit;   /* 0 - higher digit, 1 - lower digit */
   char number, digit;
 
-  dst_ptr=string; 					/* we should always be behind src_ptr,
-                   			   		   so it's safe to write over original string */
+  dst_ptr=string;   /* we should always be behind src_ptr,
+                       so it's safe to write over original string */
   number=(char)0;
   is_lower_digit=0;
-  for (src_ptr=string+1;*src_ptr != '>';src_ptr++) { 	/* begin after start marker */
-    if (*src_ptr == ' ' || *src_ptr == '\t' ) {		/* skip whitespace */
+  for (src_ptr=string+1;*src_ptr != '>';src_ptr++) {   /* begin after start marker */
+    if (*src_ptr == ' ' || *src_ptr == '\t' ) {   /* skip whitespace */
       continue;
     }
-    if (*src_ptr >= 'a') {				/* assuming 0 < A < a */
+    if (*src_ptr >= 'a') {   /* assuming 0 < A < a */
       digit=*src_ptr-'a'+(char)10;
     }
     else if (*src_ptr >= 'A') {
@@ -554,39 +554,39 @@ static void decode_ps_hex_string(char *string) {
     }
     if (is_lower_digit) {
       number|=digit;
-      *dst_ptr=number;					/* write character */
+      *dst_ptr=number;   /* write character */
       dst_ptr++;
       is_lower_digit=0;
     }
-    else { 						/* higher digit */
+    else {   /* higher digit */
       number=digit<<4;
       is_lower_digit=1;
     }
   }
-  if (is_lower_digit) {					/* write character with lower digit = 0,
-    							   as per PostScript Language Reference */
+  if (is_lower_digit) {   /* write character with lower digit = 0,
+                             as per PostScript Language Reference */
     *dst_ptr=number;
     dst_ptr++;
     /* is_lower_digit=0; */
   }
-  *dst_ptr=0;						/* finish him! */
+  *dst_ptr=0;   /* finish him! */
   return;
 }
 
 static int is_ps_hex_string(char *string) {
   int got_end_marker=0;
   char *ptr;
-  
-  if (string[0] != '<') { 	/* if has no start marker */
+
+  if (string[0] != '<') {   /* if has no start marker */
     log_event(CPDEBUG, "not a hex string, has no start marker: %s", string);
-    return 0;              		/* not hex string, obviously */
+    return 0;   /* not hex string, obviously */
   }
-  for (ptr=string+1;*ptr;ptr++) { 	/* begin after start marker */
-    if (got_end_marker) { 		/* got end marker and still something left */
+  for (ptr=string+1;*ptr;ptr++) {   /* begin after start marker */
+    if (got_end_marker) {   /* got end marker and still something left */
       log_event(CPDEBUG, "not a hex string, trailing characters after end marker: %s", ptr);
-      return 0;           		/* that's bad! */
+      return 0;   /* that's bad! */
     }
-    else if (*ptr == '>') { 	/* here it is! */
+    else if (*ptr == '>') {   /* here it is! */
       got_end_marker=1;
       log_event(CPDEBUG, "got an end marker in the hex string, expecting 0-termination: %s", ptr);
     }
@@ -596,7 +596,7 @@ static int is_ps_hex_string(char *string) {
       *ptr == '\t'
     ) ) {
       log_event(CPDEBUG, "not a hex string, invalid character: %s", ptr);
-      return 0;    			/* that's bad, too */
+      return 0;   /* that's bad, too */
     }
   }
   return got_end_marker;
@@ -607,7 +607,7 @@ static void alternate_replace_string(char *string) {
 
   log_event(CPDEBUG, "removing alternate special characters from title: %s", string);
   for (i=0;i<(unsigned int)strlen(string);i++)
-   if ( isascii(string[i]) &&      	/* leaving non-ascii characters intact */
+   if ( isascii(string[i]) &&   /* leaving non-ascii characters intact */
         (!isalnum(string[i])) && 
         string[i] != '-' && string[i] != '+' && string[i] != '.')
     string[i]='_';
@@ -618,7 +618,7 @@ static void replace_string(char *string) {
   unsigned int i;
 
   log_event(CPDEBUG, "removing special characters from title: %s", string);
-  for (i=0;i<(unsigned int)strlen(string);i++) 
+  for (i=0;i<(unsigned int)strlen(string);i++)
     if ( ( string[i] < '0' || string[i] > '9' ) &&
          ( string[i] < 'A' || string[i] > 'Z' ) &&
          ( string[i] < 'a' || string[i] > 'z' ) &&
@@ -630,7 +630,7 @@ static void replace_string(char *string) {
 static int preparetitle(char *title) {
   char *cut;
   int i;
-  
+
   if (title != NULL) {
     if (Conf_DecodeHexStrings) {
       log_event(CPSTATUS, "***Experimental Option: DecodeHexStrings");
@@ -648,12 +648,12 @@ static int preparetitle(char *title) {
       while (title[--i]=='_');
       if (i<strlen(title)-1) {
         log_event(CPDEBUG, "removing trailing _ from title: %s", title);
-        title[i+1]='\0';  
+        title[i+1]='\0';
       }
       i=0;
       while (title[i++]=='_');
       if (i>1) {
-        log_event(CPDEBUG, "removing leading _ from title: %s", title); 
+        log_event(CPDEBUG, "removing leading _ from title: %s", title);
         memmove(title, title+i-1, strlen(title)-i+2);
       }
     }
@@ -674,7 +674,7 @@ static int preparetitle(char *title) {
   if (cut != NULL) {
     log_event(CPDEBUG, "removing slashes from full title: %s", title);
     memmove(title, cut+1, strlen(cut+1)+1);
-  }  
+  }
   cut=strrchr(title, '\\');
   if (cut != NULL) {
     log_event(CPDEBUG, "removing backslashes from full title: %s", title);
@@ -720,7 +720,7 @@ static char *fgets2(char *fbuffer, int fbufsize, FILE *ffpsrc) {
   return result;
 }
 
-static int preparespoolfile(FILE *fpsrc, char *spoolfile, char *title, char *cmdtitle, 
+static int preparespoolfile(FILE *fpsrc, char *spoolfile, char *title, char *cmdtitle,
                      int job, struct passwd *passwd) {
   cp_string buffer;
   int rec_depth,is_title=0;
@@ -790,15 +790,16 @@ static int preparespoolfile(FILE *fpsrc, char *spoolfile, char *title, char *cmd
       }
     }
   }
+
   (void) fclose(fpdest);
   (void) fclose(fpsrc);
   log_event(CPDEBUG, "all data written to spoolfile: %s", spoolfile);
 
-  if (cmdtitle == NULL || !strcmp(cmdtitle, "(stdin)")) 
+  if (cmdtitle == NULL || !strcmp(cmdtitle, "(stdin)"))
     buffer[0]='\0';
   else
     strncpy(buffer, cmdtitle, BUFSIZE);
-  if (title == NULL || !strcmp(title, "((stdin))")) 
+  if (title == NULL || !strcmp(title, "((stdin))"))
     title[0]='\0';
 
   if (Conf_TitlePref) {
@@ -806,7 +807,7 @@ static int preparespoolfile(FILE *fpsrc, char *spoolfile, char *title, char *cmd
     if (!preparetitle(buffer)) {
       log_event(CPDEBUG, "empty commandline title, using PS title: %s", title);
       if (!preparetitle(title))
-        log_event(CPDEBUG, "empty PS title"); 
+        log_event(CPDEBUG, "empty PS title");
     }
     else
       snprintf(title, BUFSIZE, "%s", buffer);
@@ -820,9 +821,9 @@ static int preparespoolfile(FILE *fpsrc, char *spoolfile, char *title, char *cmd
       else
         snprintf(title, BUFSIZE, "%s", buffer);
     }
-  }          
+  }
 
-  if (!strcmp(title, "")) { 
+  if (!strcmp(title, "")) {
     if (Conf_Label == 2)
       snprintf(title, BUFSIZE, "untitled_document-job_%i", job);
     else
@@ -871,7 +872,7 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  if (init(argv))          
+  if (init(argv))
     return 5;
   log_event(CPDEBUG, "initialization finished: %s", CPVERSION);
 
@@ -880,18 +881,18 @@ int main(int argc, char *argv[]) {
   if (user == NULL) {
     (void) fputs("CUPS-PDF: failed to allocate memory\n", stderr);
     return 5;
-  }  
+  }
   snprintf(user, size, "%s%s", Conf_UserPrefix, argv[2]);
   passwd=getpwnam(user);
   if (passwd == NULL && Conf_LowerCase) {
     log_event(CPDEBUG, "unknown user: %s", user);
-    for (size=0;size<(int) strlen(argv[2]);size++) 
+    for (size=0;size<(int) strlen(argv[2]);size++)
       argv[2][size]=tolower(argv[2][size]);
     log_event(CPDEBUG, "trying lower case user name: %s", argv[2]);
     size=strlen(Conf_UserPrefix)+strlen(argv[2])+1;
     snprintf(user, size, "%s%s", Conf_UserPrefix, argv[2]);
     passwd=getpwnam(user);
-  }  
+  }
   if (passwd == NULL) {
     if (strlen(Conf_AnonUser)) {
       passwd=getpwnam(Conf_AnonUser);
@@ -911,7 +912,7 @@ int main(int argc, char *argv[]) {
         if (logfp!=NULL)
           (void) fclose(logfp);
         return 5;
-      }  
+      }
       snprintf(dirname, size, "%s", Conf_AnonDirName);
       while (strlen(dirname) && ((dirname[strlen(dirname)-1] == '\n') ||
              (dirname[strlen(dirname)-1] == '\r')))
@@ -926,7 +927,7 @@ int main(int argc, char *argv[]) {
       return 0;
     }
     mode=(mode_t)(0666&~Conf_AnonUMask);
-  } 
+  }
   else {
     log_event(CPDEBUG, "user identified: %s", passwd->pw_name);
     if ((dirname=preparedirname(passwd, argv[2])) == NULL) {
@@ -935,7 +936,7 @@ int main(int argc, char *argv[]) {
       if (logfp!=NULL)
         (void) fclose(logfp);
       return 5;
-    }  
+    }
     while (strlen(dirname) && ((dirname[strlen(dirname)-1] == '\n') ||
            (dirname[strlen(dirname)-1] == '\r')))
       dirname[strlen(dirname)-1]='\0';
@@ -1013,7 +1014,7 @@ int main(int argc, char *argv[]) {
       return 5;
     }
     log_event(CPDEBUG, "input data read from file: %s", argv[6]);
-  }  
+  }
 
   size=strlen(dirname)+strlen(title)+strlen(Conf_OutExtension)+3;
   outfile=calloc(size, sizeof(char));
@@ -1081,7 +1082,7 @@ int main(int argc, char *argv[]) {
       log_event(CPDEBUG, "GID set for current user");
     if (setgroups(ngroups, groups))
       log_event(CPERROR, "failed to set supplementary groups for current user");
-    else 
+    else
       log_event(CPDEBUG, "supplementary groups set for current user");
     if (setuid(passwd->pw_uid))
       log_event(CPERROR, "failed to set UID for current user: %s", passwd->pw_name);
@@ -1100,11 +1101,11 @@ int main(int argc, char *argv[]) {
       log_event(CPERROR, "failed to set file mode for PDF file: %s (non fatal)", outfile);
     else
       log_event(CPDEBUG, "file mode set for user output: %s", outfile);
-    
+
     if (strlen(Conf_PostProcessing)) {
       size=strlen(Conf_PostProcessing)+strlen(outfile)+strlen(passwd->pw_name)+strlen(argv[2])+4;
       ppcall=calloc(size, sizeof(char));
-      if (ppcall == NULL) 
+      if (ppcall == NULL)
         log_event(CPERROR, "failed to allocate memory for postprocessing (non fatal)");
       else {
         snprintf(ppcall, size, "%s %s %s %s", Conf_PostProcessing, outfile, passwd->pw_name, argv[2]);
@@ -1123,9 +1124,9 @@ int main(int argc, char *argv[]) {
   log_event(CPDEBUG, "waiting for child to exit");
   (void) waitpid(pid,NULL,0);
 
-  if (unlink(spoolfile)) 
+  if (unlink(spoolfile))
     log_event(CPERROR, "failed to unlink spoolfile: %s (non fatal)", spoolfile);
-  else 
+  else
     log_event(CPDEBUG, "spoolfile unlinked: %s", spoolfile);
 
   if (stat(outfile, &statout) || statout.st_size==0)
@@ -1138,10 +1139,10 @@ int main(int argc, char *argv[]) {
   free(spoolfile);
   free(outfile);
   free(gscall);
-  
+
   log_event(CPDEBUG, "all memory has been freed");
 
   if (logfp!=NULL)
     (void) fclose(logfp);
   return 0;
-} 
+}
