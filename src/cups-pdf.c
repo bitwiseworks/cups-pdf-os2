@@ -64,6 +64,7 @@
 
 
 static FILE *logfp=NULL;
+int input_is_pdf=0;
 
 
 static void log_event(short type, const char *message, ...) {
@@ -437,7 +438,7 @@ static void announce_printers() {
   int len;
   cp_string setup;
 
-  printf("file cups-pdf:/ \"Virtual PDF Printer\" \"CUPS-PDF\" \"MFG:Generic;MDL:CUPS-PDF Printer;DES:Generic CUPS-PDF Printer;CLS:PRINTER;CMD:POSTSCRIPT;\"\n");
+  printf("file cups-pdf:/ \"Virtual PDF Printer\" \"CUPS-PDF\" \"MFG:Generic;MDL:CUPS-PDF Printer;DES:Generic CUPS-PDF Printer;CLS:PRINTER;CMD:PDF,POSTSCRIPT;\"\n");
 
   if ((dir = opendir(CP_CONFIG_PATH)) != NULL) {
     while ((config_ent = readdir(dir)) != NULL) {
@@ -446,7 +447,7 @@ static void announce_printers() {
           (len > 14 && strcmp(config_ent->d_name + len - 5, ".conf") == 0)) {
         strncpy(setup, config_ent->d_name + 9, BUFSIZE>len-14 ? len-14 : BUFSIZE);
         setup[BUFSIZE>len-14 ? len-14 : BUFSIZE - 1] = '\0';
-        printf("file cups-pdf:/%s \"Virtual %s Printer\" \"CUPS-PDF\" \"MFG:Generic;MDL:CUPS-PDF Printer;DES:Generic CUPS-PDF Printer;CLS:PRINTER;CMD:POSTSCRIPT;\"\n", setup, setup);
+        printf("file cups-pdf:/%s \"Virtual %s Printer\" \"CUPS-PDF\" \"MFG:Generic;MDL:CUPS-PDF Printer;DES:Generic CUPS-PDF Printer;CLS:PRINTER;CMD:PDF,POSTSCRIPT;\"\n", setup, setup);
       }
     }
     closedir(dir);
@@ -725,6 +726,7 @@ static int preparespoolfile(FILE *fpsrc, char *spoolfile, char *title, char *cmd
   cp_string buffer;
   int rec_depth,is_title=0;
   FILE *fpdest;
+  size_t bytes = 0;
 
   if (fpsrc == NULL) {
     log_event(CPERROR, "failed to open source stream");
@@ -752,14 +754,26 @@ static int preparespoolfile(FILE *fpsrc, char *spoolfile, char *title, char *cmd
     log_event(CPSTATUS, "***Experimental Option: FixNewlines");
   else
     log_event(CPDEBUG, "using traditional fgets");
+
   while (fgets2(buffer, BUFSIZE, fpsrc) != NULL) {
+    if (!strncmp(buffer, "%PDF", 4)) {
+      log_event(CPDEBUG, "found beginning of PDF code", buffer);
+      input_is_pdf=1;
+      break;
+    }
     if (!strncmp(buffer, "%!", 2) && strncmp(buffer, "%!PS-AdobeFont", 14)) {
       log_event(CPDEBUG, "found beginning of postscript code: %s", buffer);
       break;
     }
   }
-  log_event(CPDEBUG, "now extracting postscript code");
+
   (void) fputs(buffer, fpdest);
+
+  if (input_is_pdf) {
+    while((bytes = fread(buffer, sizeof(char), BUFSIZE, fpsrc)) > 0)
+      fwrite(buffer, sizeof(char), bytes, fpdest);
+  } else {
+    log_event(CPDEBUG, "now extracting postscript code");
   while (fgets2(buffer, BUFSIZE, fpsrc) != NULL) {
     (void) fputs(buffer, fpdest);
     if (!is_title && !rec_depth) {
@@ -789,6 +803,7 @@ static int preparespoolfile(FILE *fpsrc, char *spoolfile, char *title, char *cmd
         rec_depth--;
       }
     }
+  }
   }
 
   (void) fclose(fpdest);
@@ -1049,7 +1064,12 @@ int main(int argc, char *argv[]) {
       (void) fclose(logfp);
     return 5;
   }
+  if (input_is_pdf) {
+    snprintf(gscall, size, "cp %s %s", spoolfile, outfile);
+  } else {
   snprintf(gscall, size, Conf_GSCall, Conf_GhostScript, Conf_PDFVer, outfile, spoolfile);
+  }
+
   log_event(CPDEBUG, "ghostscript commandline built: %s", gscall);
 
   (void) unlink(outfile);

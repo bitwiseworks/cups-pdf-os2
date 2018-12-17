@@ -32,8 +32,8 @@
 *ModelName:     "Generic CUPS-PDF Printer"
 *ShortNickName: "Generic CUPS-PDF Printer"
 *NickName:      "Generic CUPS-PDF Printer (w/ options)"
-*1284DeviceID:  "MFG:Generic;MDL:CUPS-PDF Printer;DES:Generic CUPS-PDF Printer;CLS:PRINTER;CMD:POSTSCRIPT;"
-*% cupsFilter:    "application/vnd.cups-postscript 0 pstitleiconv"
+*1284DeviceID:  "MFG:Generic;MDL:CUPS-PDF Printer;DES:Generic CUPS-PDF Printer;CLS:PRINTER;CMD:PDF,POSTSCRIPT;"
+*cupsFilter:    "application/pdf 0 -"
 *PSVersion:	"(2017.000) 0"
 *LanguageLevel:	"2"
 *ColorDevice:	True
